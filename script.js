@@ -1,56 +1,92 @@
-//your JS code here.
+document.addEventListener('DOMContentLoaded', function() {
+    const questions = [
+        {
+            question: "What is the capital of France?",
+            options: ["Paris", "London", "Berlin", "Madrid"],
+            correctAnswer: "Paris"
+        },
+        {
+            question: "Who wrote 'To Kill a Mockingbird'?",
+            options: ["Harper Lee", "Mark Twain", "Stephen King", "J.K. Rowling"],
+            correctAnswer: "Harper Lee"
+        },
+        {
+            question: "Which planet is known as the Red Planet?",
+            options: ["Venus", "Mars", "Jupiter", "Saturn"],
+            correctAnswer: "Mars"
+        },
+        {
+            question: "Who painted the Mona Lisa?",
+            options: ["Vincent van Gogh", "Pablo Picasso", "Leonardo da Vinci", "Michelangelo"],
+            correctAnswer: "Leonardo da Vinci"
+        },
+        {
+            question: "What is the chemical symbol for water?",
+            options: ["H2O", "CO2", "NaCl", "O2"],
+            correctAnswer: "H2O"
+        }
+    ];
 
-// Do not change code below this line
-// This code will just display the questions to the screen
-const questions = [
-  {
-    question: "What is the capital of France?",
-    choices: ["Paris", "London", "Berlin", "Madrid"],
-    answer: "Paris",
-  },
-  {
-    question: "What is the highest mountain in the world?",
-    choices: ["Everest", "Kilimanjaro", "Denali", "Matterhorn"],
-    answer: "Everest",
-  },
-  {
-    question: "What is the largest country by area?",
-    choices: ["Russia", "China", "Canada", "United States"],
-    answer: "Russia",
-  },
-  {
-    question: "Which is the largest planet in our solar system?",
-    choices: ["Earth", "Jupiter", "Mars"],
-    answer: "Jupiter",
-  },
-  {
-    question: "What is the capital of Canada?",
-    choices: ["Toronto", "Montreal", "Vancouver", "Ottawa"],
-    answer: "Ottawa",
-  },
-];
+    const quizForm = document.getElementById('quiz-form');
+    const questionsList = document.getElementById('questions-list');
+    const scoreDisplay = document.getElementById('score');
 
-// Display the quiz questions and choices
-function renderQuestions() {
-  for (let i = 0; i < questions.length; i++) {
-    const question = questions[i];
-    const questionElement = document.createElement("div");
-    const questionText = document.createTextNode(question.question);
-    questionElement.appendChild(questionText);
-    for (let j = 0; j < question.choices.length; j++) {
-      const choice = question.choices[j];
-      const choiceElement = document.createElement("input");
-      choiceElement.setAttribute("type", "radio");
-      choiceElement.setAttribute("name", `question-${i}`);
-      choiceElement.setAttribute("value", choice);
-      if (userAnswers[i] === choice) {
-        choiceElement.setAttribute("checked", true);
-      }
-      const choiceText = document.createTextNode(choice);
-      questionElement.appendChild(choiceElement);
-      questionElement.appendChild(choiceText);
+    // Load questions
+    function loadQuestions() {
+        questions.forEach((question, index) => {
+            const questionItem = document.createElement('li');
+            questionItem.innerHTML = `
+                <h3>${question.question}</h3>
+                <ul>
+                    ${question.options.map(option => `<li><input type="radio" name="question${index}" value="${option}">${option}</li>`).join('')}
+                </ul>
+            `;
+            questionsList.appendChild(questionItem);
+        });
     }
-    questionsElement.appendChild(questionElement);
-  }
-}
-renderQuestions();
+
+    // Check answers and calculate score
+    function calculateScore() {
+        let score = 0;
+        questions.forEach((question, index) => {
+            const selectedOption = document.querySelector(`input[name="question${index}"]:checked`);
+            if (selectedOption && selectedOption.value === question.correctAnswer) {
+                score++;
+            }
+        });
+        return score;
+    }
+
+    // Load saved progress
+    function loadProgress() {
+        questions.forEach((question, index) => {
+            const selectedOption = sessionStorage.getItem(`question${index}`);
+            if (selectedOption) {
+                document.querySelector(`input[name="question${index}"][value="${selectedOption}"]`).checked = true;
+            }
+        });
+    }
+
+    // Save progress to session storage
+    function saveProgress() {
+        questions.forEach((question, index) => {
+            const selectedOption = document.querySelector(`input[name="question${index}"]:checked`);
+            if (selectedOption) {
+                sessionStorage.setItem(`question${index}`, selectedOption.value);
+            }
+        });
+    }
+
+    // Handle form submission
+    quizForm.addEventListener('submit', function(event) {
+        event.preventDefault();
+        saveProgress();
+        const score = calculateScore();
+        scoreDisplay.textContent = `Your score is ${score} out of ${questions.length}.`;
+        localStorage.setItem('score', score);
+    });
+
+    // Initialize quiz
+    loadQuestions();
+    loadProgress();
+});
