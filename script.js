@@ -41,7 +41,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     ${question.options.map(option => `<li><input type="radio" name="question${index}" value="${option}">${option}</li>`).join('')}
                 </ul>
             `;
-            questionsList.appendChild(questionItem);
+            questions.appendChild(questionItem);
         });
     }
 
